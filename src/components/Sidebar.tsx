@@ -32,9 +32,11 @@ interface SidebarProps {
   activeTab: SidebarTab;
   setActiveTab: (tab: SidebarTab) => void;
   onUpgradeClick?: () => void;
+  onLogout?: () => void;
+  user?: { username: string; email: string; role: string; plan: string };
 }
 
-export default function Sidebar({ activeTab, setActiveTab, onUpgradeClick }: SidebarProps) {
+export default function Sidebar({ activeTab, setActiveTab, onUpgradeClick, onLogout, user }: SidebarProps) {
   const [showProfileMenu, setShowProfileMenu] = useState(false);
 
   const navigationItems = [
@@ -145,17 +147,17 @@ export default function Sidebar({ activeTab, setActiveTab, onUpgradeClick }: Sid
           >
             <div className="flex items-center gap-2.5">
               <div className="relative">
-                <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-pink-500 to-indigo-600 flex items-center justify-center text-white font-bold text-sm shadow-md">
-                  A
+                <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-pink-500 to-indigo-600 flex items-center justify-center text-white font-extrabold text-sm shadow-md uppercase">
+                  {user?.username ? user.username.charAt(0) : "S"}
                 </div>
                 <div className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 bg-emerald-500 border-2 border-[#080a14] rounded-full animate-pulse" />
               </div>
               <div className="text-left">
-                <span className="text-[11px] font-bold text-slate-200 font-sans block leading-none">
-                  AI Enthusiast
+                <span className="text-[11px] font-bold text-slate-200 font-sans block leading-none max-w-[120px] truncate">
+                  {user?.username || "AI Enthusiast"}
                 </span>
                 <span className="text-[9px] text-slate-500 font-mono">
-                  FREE PLAN
+                  {user?.plan || "FREE PLAN"}
                 </span>
               </div>
             </div>
@@ -188,7 +190,11 @@ export default function Sidebar({ activeTab, setActiveTab, onUpgradeClick }: Sid
               <div className="h-px bg-slate-800 my-1" />
               <button 
                 onClick={() => {
-                  alert("PatternAI secure logout sequence completed. Workspace remains saved locally.");
+                  if (onLogout) {
+                    onLogout();
+                  } else {
+                    alert("PatternAI secure logout sequence completed.");
+                  }
                   setShowProfileMenu(false);
                 }}
                 className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-[10px] uppercase tracking-wide font-semibold text-rose-400 hover:text-rose-300 hover:bg-rose-950/20 transition text-left cursor-pointer"

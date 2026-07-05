@@ -13,11 +13,26 @@ import MLPlaygroundPanel from "./components/MLPlaygroundPanel";
 import { DatasetsView, LeaderboardView, DocsView, CommunityView } from "./components/ExtraPanels";
 import SettingsPanel from "./components/SettingsPanel";
 import AIAssistant from "./components/AIAssistant";
+import AuthScreen from "./components/AuthScreen";
 import { AuditResult, AuditIssue } from "./types";
 import { Sparkles, ArrowUpRight } from "lucide-react";
 
 export default function App() {
   const [activeTab, setActiveTab] = useState<SidebarTab>("home");
+
+  // Authentication states
+  const [isAuthenticated, setIsAuthenticated] = useState(() => {
+    return localStorage.getItem("p_is_authenticated") === "true";
+  });
+  
+  const [user, setUser] = useState(() => {
+    return {
+      username: localStorage.getItem("p_username") || "Sandeep NN",
+      email: localStorage.getItem("p_email") || "sandeepnn71@gmail.com",
+      role: localStorage.getItem("p_role") || "Senior AI Architect",
+      plan: localStorage.getItem("p_plan") || "FREE PLAN",
+    };
+  });
 
   // Code state
   const [code, setCode] = useState<string>("");
@@ -118,6 +133,47 @@ export default function App() {
     alert("PatternAI Pro features requested! This activates dedicated high-speed server GPU nodes for neural fitting weights analysis.");
   };
 
+  const handleLogout = () => {
+    localStorage.removeItem("p_is_authenticated");
+    localStorage.removeItem("p_username");
+    localStorage.removeItem("p_email");
+    localStorage.removeItem("p_role");
+    localStorage.removeItem("p_plan");
+    setIsAuthenticated(false);
+    setUser({
+      username: "Sandeep NN",
+      email: "sandeepnn71@gmail.com",
+      role: "Senior AI Architect",
+      plan: "FREE PLAN",
+    });
+  };
+
+  if (!isAuthenticated) {
+    return (
+      <AuthScreen 
+        onLoginSuccess={(userData) => {
+          setUser(userData);
+          setIsAuthenticated(true);
+        }}
+        onExploreAsGuest={() => {
+          const guestUser = {
+            username: "Guest Explorer",
+            email: "guest@patternai.local",
+            role: "Workspace Guest",
+            plan: "FREE PLAN"
+          };
+          setUser(guestUser);
+          setIsAuthenticated(true);
+          localStorage.setItem("p_is_authenticated", "true");
+          localStorage.setItem("p_username", guestUser.username);
+          localStorage.setItem("p_email", guestUser.email);
+          localStorage.setItem("p_role", guestUser.role);
+          localStorage.setItem("p_plan", guestUser.plan);
+        }}
+      />
+    );
+  }
+
   return (
     <div className="min-h-screen bg-[#030408] text-slate-100 font-sans flex overflow-hidden">
       {/* Premium Left Sidebar */}
@@ -125,6 +181,8 @@ export default function App() {
         activeTab={activeTab} 
         setActiveTab={setActiveTab} 
         onUpgradeClick={handleUpgradeClick}
+        onLogout={handleLogout}
+        user={user}
       />
 
       {/* Main Workspace Frame container */}
@@ -309,7 +367,15 @@ export default function App() {
                 exit={{ opacity: 0 }}
                 transition={{ duration: 0.2 }}
               >
-                <SettingsPanel />
+                <SettingsPanel 
+                  user={user}
+                  onUserUpdate={(updatedUser) => {
+                    setUser((prev) => ({
+                      ...prev,
+                      ...updatedUser
+                    }));
+                  }}
+                />
               </motion.div>
             )}
 

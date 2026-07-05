@@ -48,12 +48,25 @@ const API_USAGE_HISTORY = [
   { day: "Sun", calls: 14, tokens: 4800, latency: 105 },
 ];
 
-export default function SettingsPanel() {
+interface SettingsPanelProps {
+  user?: { username: string; email: string; role: string; plan: string };
+  onUserUpdate?: (updatedUser: { username: string; email: string; role: string }) => void;
+}
+
+export default function SettingsPanel({ user, onUserUpdate }: SettingsPanelProps) {
   // General Profile States
-  const [username, setUsername] = useState(() => localStorage.getItem("p_username") || "Sandeep NN");
-  const [email, setEmail] = useState(() => localStorage.getItem("p_email") || "sandeepnn71@gmail.com");
-  const [profileRole, setProfileRole] = useState(() => localStorage.getItem("p_role") || "Senior AI Architect");
+  const [username, setUsername] = useState(() => user?.username || localStorage.getItem("p_username") || "Sandeep NN");
+  const [email, setEmail] = useState(() => user?.email || localStorage.getItem("p_email") || "sandeepnn71@gmail.com");
+  const [profileRole, setProfileRole] = useState(() => user?.role || localStorage.getItem("p_role") || "Senior AI Architect");
   const [isSaved, setIsSaved] = useState(false);
+
+  useEffect(() => {
+    if (user) {
+      setUsername(user.username);
+      setEmail(user.email);
+      setProfileRole(user.role);
+    }
+  }, [user]);
 
   // API Configuration
   const [customApiKey, setCustomApiKey] = useState(() => localStorage.getItem("p_api_key") || "");
@@ -95,6 +108,14 @@ export default function SettingsPanel() {
     localStorage.setItem("p_theme_mode", themeMode);
     localStorage.setItem("p_font_size", fontSize);
     localStorage.setItem("p_sandbox_speed", sandboxSpeed);
+
+    if (onUserUpdate) {
+      onUserUpdate({
+        username,
+        email,
+        role: profileRole
+      });
+    }
 
     setIsSaved(true);
     setTimeout(() => setIsSaved(false), 3000);
