@@ -1,0 +1,6 @@
+{
+  "name": "AI Code Auditor and Model Testing Suite",
+  "description": "An interactive, AI-powered workspace to perform security, performance, and style audits, automatically generate and preview bug fixes, and run custom test cases to evaluate ML models or code snippets.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
